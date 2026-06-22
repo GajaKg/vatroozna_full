@@ -13,8 +13,8 @@ namespace VatroApi.V1.Data
 
         }
 
-        DbSet<Client> Clients { get; set; }
-        DbSet<Control> Controls { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Control> Controls { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +29,7 @@ namespace VatroApi.V1.Data
             //             .WithMany(c => c.Controls)
             //             .HasForeignKey(c => c.ClientId)
             //             .OnDelete(DeleteBehavior.Cascade);
+            base.OnModelCreating(modelBuilder);
         }
 
     }

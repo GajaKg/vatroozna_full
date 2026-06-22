@@ -1,11 +1,9 @@
-using Microsoft.VisualBasic;
 using VatroApi.V1.Models;
 
-namespace VatroApi.V1.Entities
+namespace VatroApi.V1.Dto.Client
 {
-    public class Client
+    public class EditClientDto
     {
-        public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
         public string? City { get; set; } = String.Empty;
         public string? Address { get; set; } = String.Empty;
@@ -15,8 +13,5 @@ namespace VatroApi.V1.Entities
         public string? Note { get; set; } = String.Empty;
         public bool Referent { get; set; } = false;
         public bool Archived { get; set; } = false;
-        public DateTime Date { get; set; } = DateTime.UtcNow;
-
-        public ICollection<Control> Controls = [];
     }
 }

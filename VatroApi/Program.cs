@@ -1,6 +1,8 @@
 using VatroApi.V1.Data;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using VatroApi.V1.Interfaces;
+using VatroApi.V1.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("WebApiDatabase"));
 });
+
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
 
 // Controllers
 builder.Services.AddControllers();
@@ -34,6 +38,7 @@ if (app.Environment.IsDevelopment())
                    ScalarClient.HttpClient);
     });
 }
+
 
 app.UseHttpsRedirection();
 
