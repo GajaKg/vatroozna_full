@@ -17,67 +17,59 @@ namespace VatroApi.V1.Repositories
             _context = context;
         }
 
-        public async Task<List<ClientDto>> GetAllAsync()
+        public async Task<List<Client>> GetAllAsync()
         {
             return await _context.Clients
                 .AsNoTracking()
-                .Select(c => c.ToClientDto())
                 .ToListAsync();
         }
 
-        public async Task<ClientDto?> GetByIdAsync(int id)
+        public async Task<Client?> GetByIdAsync(int id)
         {
-            var client = await _context.Clients
+            return await _context.Clients
                 .AsNoTracking()
                 .Include(c => c.Controls)
                 .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (client == null) return null;
-
-            return client.ToClientDto();
         }
 
-        public async Task<ClientDto?> CreateAsync(PostClientDto postClientDto)
+        public async Task<Client> CreateAsync(Client client)
         {
-            var clientModel = postClientDto.FromClientPostToClientModel();
-            await _context.Clients.AddAsync(clientModel);
-            var result = await _context.SaveChangesAsync() > 0;
+            await _context.Clients.AddAsync(client);
+            await _context.SaveChangesAsync();
 
-            if (result) return clientModel.ToClientDto();
-
-            return null;
+            return client;
         }
 
-        public async Task<ClientDto?> UpdateAsync(int id, EditClientDto editClientDto)
+        public async Task<Client?> UpdateAsync(int id, Client client)
         {
             var foundClient = await _context.Clients.FindAsync(id);
             if (foundClient == null) return null;
 
-            foundClient.Name = editClientDto.Name;
-            foundClient.City = editClientDto.City;
-            foundClient.Address = editClientDto.Address;
-            foundClient.Email = editClientDto.Email;
-            foundClient.Phone = editClientDto.Phone;
-            foundClient.Phone2 = editClientDto.Phone2;
-            foundClient.Note = editClientDto.Note;
-            foundClient.Referent = editClientDto.Referent;
-            foundClient.Archived = editClientDto.Archived;
+            foundClient.Name = client.Name;
+            foundClient.City = client.City;
+            foundClient.Address = client.Address;
+            foundClient.Email = client.Email;
+            foundClient.Phone = client.Phone;
+            foundClient.Phone2 = client.Phone2;
+            foundClient.Note = client.Note;
+            foundClient.Referent = client.Referent;
+            foundClient.Archived = client.Archived;
 
-            var result = await _context.SaveChangesAsync() > 0;
+            await _context.SaveChangesAsync();
 
-            if (result) return foundClient.ToClientDto();
-
-            return null;
+            return foundClient;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(Client client)
         {
-            var client = await _context.Clients.FirstOrDefaultAsync(c => c.Id == id);
-
-            if (client == null) return false;
-
             _context.Clients.Remove(client);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> ClientExists(string name)
+        {
+            return await _context.Clients
+                .AnyAsync(c => c.Name.ToLower() == name.Trim().ToLower());
         }
     }
 }

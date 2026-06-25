@@ -6,10 +6,11 @@ namespace VatroApi.V1.Interfaces
 {
     public interface IClientRepository
     {
-        Task<List<ClientDto>> GetAllAsync();
-        Task<ClientDto?> GetByIdAsync(int id);
-        Task<ClientDto?> CreateAsync(PostClientDto postClientDto);
-        Task<ClientDto?> UpdateAsync(int id, EditClientDto editClientDto);
-        Task<bool> Delete(int id);
+        Task<List<Client>> GetAllAsync();
+        Task<Client?> GetByIdAsync(int id);
+        Task<Client> CreateAsync(Client client);
+        Task<Client?> UpdateAsync(int id, Client client);
+        Task<bool> DeleteAsync(Client client);
+        Task<bool> ClientExists(string name);
     }
 }

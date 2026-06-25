@@ -24,11 +24,18 @@ namespace VatroApi.V1.Data
                         .HasForeignKey(c => c.ClientId)
                         .OnDelete(DeleteBehavior.Cascade);
 
+
+            // _clientRepository.ClientExists 
+            // fixing race condition, The real protection should be a unique database constraint.
+            modelBuilder.Entity<Client>()
+                        .HasIndex(c => c.Name)
+                        .IsUnique();
             // modelBuilder.Entity<Control>()
             //             .HasOne(c => c.Client)
             //             .WithMany(c => c.Controls)
             //             .HasForeignKey(c => c.ClientId)
             //             .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
         }
 

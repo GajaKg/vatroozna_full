@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VatroApi.V1.Dto.Client;
 using VatroApi.V1.Interfaces;
+using VatroApi.V1.Shared;
 
 namespace VatroApi.V1.Controllers
 {
@@ -8,18 +9,17 @@ namespace VatroApi.V1.Controllers
     [Route("api/v1/[controller]")]
     public class ClientController : ControllerBase
     {
-        private readonly IClientRepository _clientRepository;
+        private readonly IClientService _clientService;
 
-        public ClientController(IClientRepository clientRepository)
+        public ClientController(IClientService clientService)
         {
-            _clientRepository = clientRepository;
-
+            _clientService = clientService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<ClientDto>>> GetAll()
         {
-            var clients = await _clientRepository.GetAllAsync();
+            var clients = await _clientService.GetAllAsync();
             return Ok(clients);
         }
 
@@ -27,48 +27,104 @@ namespace VatroApi.V1.Controllers
         [Route("{id}")]
         public async Task<ActionResult<ClientDto>> GetById([FromRoute] int id)
         {
-            var client = await _clientRepository.GetByIdAsync(id);
+            var result = await _clientService.GetByIdAsync(id);
 
-            if (client == null) return NotFound("Ne postoji traženi klijent");
+            if (!result.IsSuccess)
+            {
+                return HandleError<ClientDto>(result);
+                // return (result.Error?.Code) switch
+                // {
+                //     RecordErrorType.NotFound => (ActionResult<ClientDto>)NotFound(result?.Error),
+                //     RecordErrorType.ServerError => (ActionResult<ClientDto>)StatusCode(500, result.Error),
+                //     _ => (ActionResult<ClientDto>)StatusCode(500, result.Error),
+                // };
+            }
 
-            return Ok(client);
+            return Ok(result.Value);
         }
 
         [HttpPost]
         public async Task<ActionResult<ClientDto>> Create([FromBody] PostClientDto postClientDto)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            // this code is not necessary, dotnet do this automatically
+            // if (!ModelState.IsValid) return BadRequest();
 
-            // var customer = postClientDto.FromClientPostToClientModel();
-            var clientDto = await _clientRepository.CreateAsync(postClientDto);
+            var result = await _clientService.CreateAsync(postClientDto);
 
-            if (clientDto == null) return BadRequest();
+            if (!result.IsSuccess)
+            {
+                return HandleError<ClientDto>(result);
+                // return (result.Error?.Code) switch
+                // {
+                //     RecordErrorType.NotFound => (ActionResult<ClientDto>)NotFound(result?.Error),
+                //     RecordErrorType.ServerError => (ActionResult<ClientDto>)StatusCode(500, result.Error),
+                //     _ => (ActionResult<ClientDto>)StatusCode(500, result.Error),
+                // };
+            }
+            // if (!result.IsSuccess && result.Error?.Code == RecordErrorType.Exists)
+            // {
+            //     return BadRequest(result.Error);
+            // }
 
-            // return Ok(response);
-            return CreatedAtAction(nameof(GetById), new {Id = clientDto.Id},  clientDto);
+            return CreatedAtAction(nameof(GetById), new { Id = result.Value!.Id }, result.Value);
         }
 
         [HttpPut]
         [Route("{id}")]
         public async Task<ActionResult<ClientDto>> Update([FromRoute] int id, [FromBody] EditClientDto editClientDto)
         {
-            if (!ModelState.IsValid) return BadRequest("forma nije validna");
 
-            var response = await _clientRepository.UpdateAsync(id, editClientDto);
+            var result = await _clientService.UpdateAsync(id, editClientDto);
 
-            if (response == null) return BadRequest("Nesto iz baze");
+            if (!result.IsSuccess)
+            {
+                return HandleError<ClientDto>(result);
+                // return NotFound(response.Error);
+                // return (result.Error?.Code) switch
+                // {
+                //     RecordErrorType.NotFound => (ActionResult<ClientDto>)NotFound(result?.Error),
+                //     RecordErrorType.ServerError => (ActionResult<ClientDto>)StatusCode(500, result.Error),
+                //     _ => (ActionResult<ClientDto>)StatusCode(500, result.Error),
+                // };
+            }
 
-            return Ok(response);
+            return Ok(result.Value);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<bool>> Delete(int id)
+        public async Task<ActionResult<int>> Delete(int id)
         {
-            var isDeleted = await _clientRepository.Delete(id);
+            var result = await _clientService.DeleteAsync(id);
 
-            if (isDeleted == false) return NotFound();
+            if (!result.IsSuccess)
+            {
+                return HandleError<int>(result);
+                // return (result.Error?.Code) switch
+                // {
+                //     RecordErrorType.NotFound => (ActionResult<bool>)NotFound(result?.Error),
+                //     RecordErrorType.ServerError => (ActionResult<bool>)StatusCode(500, result.Error),
+                //     _ => (ActionResult<bool>)StatusCode(500, result.Error),
+                // };
+            }
 
             return Ok();
+        }
+
+
+        private ActionResult HandleError<T>(Result<T> result)
+        {
+            switch (result.Error?.Code)
+            {
+                case RecordErrorType.NotFound:
+                    return NotFound(result?.Error);
+                case RecordErrorType.ServerError:
+                    return StatusCode(500, result?.Error);
+                case RecordErrorType.Exists:
+                    return BadRequest(result?.Error);
+                default:
+                    return StatusCode(500, result?.Error);
+            }
+
         }
     }
 }
