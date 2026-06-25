@@ -1,13 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using VatroApi.V1.Dto.Client;
 using VatroApi.V1.Interfaces;
-using VatroApi.V1.Shared;
 
 namespace VatroApi.V1.Controllers
 {
-    [ApiController]
-    [Route("api/v1/[controller]")]
-    public class ClientController : ControllerBase
+    public class ClientController : ApiControllerBase
     {
         private readonly IClientService _clientService;
 
@@ -31,13 +28,7 @@ namespace VatroApi.V1.Controllers
 
             if (!result.IsSuccess)
             {
-                return HandleError<ClientDto>(result);
-                // return (result.Error?.Code) switch
-                // {
-                //     RecordErrorType.NotFound => (ActionResult<ClientDto>)NotFound(result?.Error),
-                //     RecordErrorType.ServerError => (ActionResult<ClientDto>)StatusCode(500, result.Error),
-                //     _ => (ActionResult<ClientDto>)StatusCode(500, result.Error),
-                // };
+                return HandleError(result);
             }
 
             return Ok(result.Value);
@@ -53,18 +44,8 @@ namespace VatroApi.V1.Controllers
 
             if (!result.IsSuccess)
             {
-                return HandleError<ClientDto>(result);
-                // return (result.Error?.Code) switch
-                // {
-                //     RecordErrorType.NotFound => (ActionResult<ClientDto>)NotFound(result?.Error),
-                //     RecordErrorType.ServerError => (ActionResult<ClientDto>)StatusCode(500, result.Error),
-                //     _ => (ActionResult<ClientDto>)StatusCode(500, result.Error),
-                // };
+                return HandleError(result);
             }
-            // if (!result.IsSuccess && result.Error?.Code == RecordErrorType.Exists)
-            // {
-            //     return BadRequest(result.Error);
-            // }
 
             return CreatedAtAction(nameof(GetById), new { Id = result.Value!.Id }, result.Value);
         }
@@ -78,14 +59,7 @@ namespace VatroApi.V1.Controllers
 
             if (!result.IsSuccess)
             {
-                return HandleError<ClientDto>(result);
-                // return NotFound(response.Error);
-                // return (result.Error?.Code) switch
-                // {
-                //     RecordErrorType.NotFound => (ActionResult<ClientDto>)NotFound(result?.Error),
-                //     RecordErrorType.ServerError => (ActionResult<ClientDto>)StatusCode(500, result.Error),
-                //     _ => (ActionResult<ClientDto>)StatusCode(500, result.Error),
-                // };
+                return HandleError(result);
             }
 
             return Ok(result.Value);
@@ -98,33 +72,13 @@ namespace VatroApi.V1.Controllers
 
             if (!result.IsSuccess)
             {
-                return HandleError<int>(result);
-                // return (result.Error?.Code) switch
-                // {
-                //     RecordErrorType.NotFound => (ActionResult<bool>)NotFound(result?.Error),
-                //     RecordErrorType.ServerError => (ActionResult<bool>)StatusCode(500, result.Error),
-                //     _ => (ActionResult<bool>)StatusCode(500, result.Error),
-                // };
+                return HandleError(result);
             }
 
             return Ok();
         }
 
 
-        private ActionResult HandleError<T>(Result<T> result)
-        {
-            switch (result.Error?.Code)
-            {
-                case RecordErrorType.NotFound:
-                    return NotFound(result?.Error);
-                case RecordErrorType.ServerError:
-                    return StatusCode(500, result?.Error);
-                case RecordErrorType.Exists:
-                    return BadRequest(result?.Error);
-                default:
-                    return StatusCode(500, result?.Error);
-            }
 
-        }
     }
 }

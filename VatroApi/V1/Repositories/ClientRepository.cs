@@ -69,7 +69,8 @@ namespace VatroApi.V1.Repositories
         public async Task<bool> ClientExists(string name)
         {
             return await _context.Clients
-                .AnyAsync(c => c.Name.ToLower() == name.Trim().ToLower());
+                .AnyAsync(c => EF.Functions.ILike(c.Name, name));
+                // .AnyAsync(c => c.Name.ToLower() == name.Trim().ToLower());//This prevents index usage in SQL.
         }
     }
 }

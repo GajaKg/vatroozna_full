@@ -98,19 +98,9 @@ namespace VatroApi.V1.Services
 
             var isDeleted = await _clientRepository.DeleteAsync(clientExists);
 
-            if (isDeleted)
-            {
-                return Result<int>.Success(id);
-            }
-            else
-            {
-                return Result<int>.Failure(
-                    new Error(
-                        RecordErrorType.ServerError,
-                        $"Neuspesno, molimo vas probajte kasnije."
-                    )
-                );
-            }
+            return isDeleted
+                ? Result<int>.Success(id)
+                : Result<int>.Failure(new Error(RecordErrorType.ServerError, $"Neuspešno, molimo vas probajte kasnije."));
         }
     }
 }
