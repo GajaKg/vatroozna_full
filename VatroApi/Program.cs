@@ -14,6 +14,18 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
         builder.Configuration.GetConnectionString("WebApiDatabase"));
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorLocalhost",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:5072", "https://localhost:5072")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials(); // Optional, if using cookies/auth
+        });
+});
+
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IControlRepository, ControlRepository>();
@@ -44,7 +56,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowBlazorLocalhost");
 app.MapControllers();
 
 app.Run();
