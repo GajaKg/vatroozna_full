@@ -1,0 +1,10 @@
+VatroApi/bin/
+VatroApi/obj/
+VatroApi/obj/Debug/
+VatroClient/bin/
+VatroClient/obj/
+VatroShared/bin/
+VatroShared/obj/
+node_modules/
+nupkg/
+VatroClient/wwwroot/lib/
