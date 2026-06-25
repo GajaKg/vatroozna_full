@@ -1,0 +1,63 @@
+﻿@page "/clients"
+@inject HttpClient Http
+@* @inject ILogger<Navigate> Logger *@
+@inject NavigationManager Navigation
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (clients == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th aria-label="Klijent">Klijent</th>
+                <th aria-label="Grad">Grad</th>
+                <th aria-label="Adresa">Adresa</th>
+                <th aria-label="Kontakt telefon">Kontakt telefon</th>
+                <th aria-label="Kontakt telefon 2">Kontakt telefon 2</th>
+                <th aria-label="Email">Email</th>
+                <th aria-label="Beleška">Beleška</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var client in clients)
+            {
+                <tr @onclick="() => onClientDetail(client.Id)">
+                    <td>@client.Id</td>
+                    <td>@client.Name</td>
+                    <td>@client.City</td>
+                    <td>@client.Address</td>
+                    <td>@client.Phone</td>
+                    <td>@client.Phone2</td>
+                    <td>@client.Email</td>
+                    <td>@client.Note</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    @using VatroClient.Models;
+
+    private Client[]? clients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await Http.GetFromJsonAsync<Client[]>("/api/client");
+    }
+
+    void onClientDetail(int id)
+    {
+        Navigation.NavigateTo("/client/" + id);
+    }
+}
