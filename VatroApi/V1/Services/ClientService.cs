@@ -2,6 +2,7 @@ using VatroApi.V1.Dto.Client;
 using VatroApi.V1.Interfaces;
 using VatroApi.V1.Mappers;
 using VatroApi.V1.Shared;
+using VatroApi.V1.Shared.ErrorHandling;
 
 namespace VatroApi.V1.Services
 {
@@ -21,11 +22,7 @@ namespace VatroApi.V1.Services
             if (client is null)
             {
                 return Result<ClientDto>.Failure(
-                    new Error(
-                        // "Record.NotExists",
-                        RecordErrorType.NotFound,
-                        $"Klijent sa id: '{id}' ne postoji."
-                    )
+                    ResultErrors.RecordNotFound(id.ToString())
                 );
             }
             return Result<ClientDto>.Success(client.ToClientDto());
@@ -47,10 +44,8 @@ namespace VatroApi.V1.Services
             if (await _clientRepository.ClientExists(postClientDto.Name))
             {
                 return Result<ClientDto>.Failure(
-                    new Error(
-                        RecordErrorType.Exists,
-                        $"Klijent '{postClientDto.Name}' vec postoji, probaj drugo ime."
-                    ));
+                    ResultErrors.RecordAlreadyExists(postClientDto.Name)
+                );
             }
 
             var clientModel = postClientDto.FromClientPostToClientModel();
@@ -70,10 +65,7 @@ namespace VatroApi.V1.Services
             if (updatedClient is null)
             {
                 return Result<ClientDto>.Failure(
-                    new Error(
-                        RecordErrorType.NotFound,
-                        $"Klijent '{editClientDto.Name}' ne postoji."
-                    )
+                    ResultErrors.RecordNotFound(editClientDto.Name)
                 );
             }
 
@@ -89,10 +81,7 @@ namespace VatroApi.V1.Services
             if (clientExists is null)
             {
                 return Result<int>.Failure(
-                    new Error(
-                        RecordErrorType.NotFound,
-                        $"Klijent sa id: '{id}' ne postoji."
-                    )
+                   ResultErrors.RecordNotFound(id.ToString())
                 );
             }
 
