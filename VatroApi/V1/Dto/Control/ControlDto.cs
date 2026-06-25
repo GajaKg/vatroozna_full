@@ -1,4 +1,3 @@
-using VatroApi.V1.Dto.Client;
 
 namespace VatroApi.V1.Dto.Control
 {
