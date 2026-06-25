@@ -14,6 +14,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 });
 
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IControlRepository, ControlRepository>();
 
 // Controllers
 builder.Services.AddControllers();

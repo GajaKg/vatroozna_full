@@ -17,6 +17,6 @@ namespace VatroApi.V1.Entities
         public bool Archived { get; set; } = false;
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
-        public ICollection<Control> Controls = [];
+        public List<Control> Controls = [];
     }
 }

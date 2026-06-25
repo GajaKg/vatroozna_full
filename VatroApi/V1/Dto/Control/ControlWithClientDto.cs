@@ -1,11 +1,10 @@
-using VatroApi.V1.Entities;
+using VatroApi.V1.Dto.Client;
 
-namespace VatroApi.V1.Models
+namespace VatroApi.V1.Dto.Control
 {
-    public class Control
+    public class ControlWithClientDto
     {
         public int Id { get; set; }
-        public int ClientId { get; set; }
         public string Subject { get; set; } = String.Empty;
         public string Duration { get; set; } = String.Empty;
         public DateTime Date { get; set; } = DateTime.UtcNow;
@@ -13,6 +12,6 @@ namespace VatroApi.V1.Models
         public string? Note { get; set; } = String.Empty;
         public bool Archive { get; set; } = false;
 
-        public Client Client = null!;
+         public ClientWithoutControlDto Client { get; set; } = null!;
     }
 }

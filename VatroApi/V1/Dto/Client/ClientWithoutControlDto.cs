@@ -1,9 +1,6 @@
-using VatroApi.V1.Dto.Control;
-using VatroApi.V1.Models;
-
 namespace VatroApi.V1.Dto.Client
 {
-    public class ClientDto
+    public class ClientWithoutControlDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
@@ -17,6 +14,5 @@ namespace VatroApi.V1.Dto.Client
         public bool Archived { get; set; } = false;
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
-        public List<ControlDto> Controls { get; set; } = [];
     }
 }

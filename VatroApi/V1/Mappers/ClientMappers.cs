@@ -20,7 +20,7 @@ namespace VatroApi.V1.Mappers
                 Referent = client.Referent,
                 Archived = client.Archived,
                 Date = client.Date,
-                Controls = [.. client.Controls],
+                Controls = client.Controls.Select(c => c.ToControlDto()).ToList(),
             };
         }
         public static Client FromClientPostToClientModel(this PostClientDto postClientDto)
@@ -55,6 +55,24 @@ namespace VatroApi.V1.Mappers
                 Archived = editClientDto.Archived,
                 // Date = postClientDto.Date,
                 //   Controls = postClientDto.Controls,
+            };
+        }
+
+        public static ClientWithoutControlDto ToClientWithoutControlDto(this Client client)
+        {
+            return new ClientWithoutControlDto
+            {
+                Id = client.Id,
+                Name = client.Name,
+                City = client.City,
+                Address = client.Address,
+                Email = client.Email,
+                Phone = client.Phone,
+                Phone2 = client.Phone2,
+                Note = client.Note,
+                Referent = client.Referent,
+                Archived = client.Archived,
+                Date = client.Date,
             };
         }
     }

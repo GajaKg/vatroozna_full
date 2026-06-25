@@ -1,8 +1,6 @@
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Mvc;
 using VatroApi.V1.Dto.Client;
 using VatroApi.V1.Interfaces;
-using VatroApi.V1.Mappers;
 
 namespace VatroApi.V1.Controllers
 {
@@ -42,22 +40,23 @@ namespace VatroApi.V1.Controllers
             if (!ModelState.IsValid) return BadRequest();
 
             // var customer = postClientDto.FromClientPostToClientModel();
-            var response = await _clientRepository.CreateAsync(postClientDto);
+            var clientDto = await _clientRepository.CreateAsync(postClientDto);
 
-            if (response == null) return BadRequest();
+            if (clientDto == null) return BadRequest();
 
-            return Ok(response);
+            // return Ok(response);
+            return CreatedAtAction(nameof(GetById), new {Id = clientDto.Id},  clientDto);
         }
 
         [HttpPut]
         [Route("{id}")]
         public async Task<ActionResult<ClientDto>> Update([FromRoute] int id, [FromBody] EditClientDto editClientDto)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest("forma nije validna");
 
             var response = await _clientRepository.UpdateAsync(id, editClientDto);
 
-            if (response == null) return BadRequest();
+            if (response == null) return BadRequest("Nesto iz baze");
 
             return Ok(response);
         }
@@ -67,7 +66,6 @@ namespace VatroApi.V1.Controllers
         {
             var isDeleted = await _clientRepository.Delete(id);
 
-            if (isDeleted == null) return BadRequest();
             if (isDeleted == false) return NotFound();
 
             return Ok();
