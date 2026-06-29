@@ -1,10 +1,9 @@
 
 using Microsoft.EntityFrameworkCore;
 using VatroApi.V1.Data;
-using VatroApi.V1.Dto.Client;
 using VatroApi.V1.Dto.Control;
 using VatroApi.V1.Interfaces;
-using VatroApi.V1.Mappers;
+using VatroApi.V1.Models;
 
 namespace VatroApi.V1.Repositories
 {
@@ -16,87 +15,52 @@ namespace VatroApi.V1.Repositories
             _context = context;
         }
 
-        public async Task<List<ControlWithClientDto>> GetAllAsync()
+        public async Task<List<Control>> GetAllAsync()
         {
             return await _context.Controls
                 .AsNoTracking()
-                // .Include(c => c.Client)
+                .Include(c => c.Client)
                 .OrderBy(c => c.Date)
-                // .Select(c => c.ToControlWithClientDto())
-                //This lets EF generate a single optimized SQL query and avoids materializing full entities.
-                .Select(c => new ControlWithClientDto
-                {
-                    Id = c.Id,
-                    Subject = c.Subject,
-                    Duration = c.Duration,
-                    Date = c.Date,
-                    NextCheck = c.NextCheck,
-                    Note = c.Note,
-                    Archive = c.Archive,
-                    Client = new ClientWithoutControlDto
-                    {
-                        Id = c.Client.Id,
-                        Name = c.Client.Name,
-                        City = c.Client.City,
-                        Address = c.Client.Address,
-                        Email = c.Client.Email,
-                        Phone = c.Client.Phone,
-                        Phone2 = c.Client.Phone2,
-                        Note = c.Client.Note,
-                        Referent = c.Client.Referent,
-                        Archived = c.Client.Archived,
-                        Date = c.Client.Date,
-                    },
-                })
                 .ToListAsync();
         }
 
-        public async Task<ControlWithClientDto?> GetByIdAsync(int id)
+        public async Task<Control?> GetByIdAsync(int id)
         {
-            var control = await _context.Controls
+            return await _context.Controls
                 .AsNoTracking()
                 .Include(c => c.Client)
                 .FirstOrDefaultAsync(c => c.Id == id);
-
-            return control?.ToControlWithClientDto();
         }
 
-        public async Task<ControlDto?> CreateAsync(ControlPostDto controlPostDto)
+        public async Task<Control?> GetByIdUntrackedAsync(int id)
         {
-            var clientExist = await _context.Clients.AnyAsync(c => c.Id == controlPostDto.ClientId);
-            if (!clientExist) return null;
+            return await _context.Controls
+                .Include(c => c.Client)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
 
-            var controlModel = controlPostDto.FromControlPostDtoToControlModel();
-            await _context.Controls.AddAsync(controlModel);
+        public async Task<Control?> CreateAsync(Control control)
+        {
+            await _context.Controls.AddAsync(control);
             var result = await SaveAllAsync();
 
-            if (result) return controlModel.ToControlDto();
+            if (result) return control;
 
             return null;
         }
 
-        public async Task<ControlDto?> UpdateAsync(int id, ControlEditDto controlEditDto)
+        public void UpdateAsync(Control controlToUpdate, ControlEditDto controlEditDto)
         {
-            var control = await _context.Controls.FindAsync(id);
-
-            if (control is null) return null;
-
-            control.Subject = controlEditDto.Subject;
-            control.Duration = controlEditDto.Duration;
-            control.NextCheck = controlEditDto.NextCheck;
-            control.Note = controlEditDto.Note;
-            control.Archive = controlEditDto.Archive;
-
-            if (await SaveAllAsync()) return control.ToControlDto();
-
-            return null;
+            controlToUpdate.Subject = controlEditDto.Subject;
+            controlToUpdate.Duration = controlEditDto.Duration;
+            controlToUpdate.Date = controlEditDto.Date;
+            controlToUpdate.NextCheck = controlEditDto.NextCheck;
+            controlToUpdate.Note = controlEditDto.Note;
+            controlToUpdate.Archive = controlEditDto.Archive;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> Delete(Control control)
         {
-            var control = await _context.Controls.FindAsync(id);
-            if (control is null) return false;
-
             _context.Controls.Remove(control);
             return await SaveAllAsync();
         }
@@ -104,6 +68,11 @@ namespace VatroApi.V1.Repositories
         public async Task<bool> SaveAllAsync()
         {
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> ControlExists(int id)
+        {
+            return await _context.Controls.AnyAsync(c => c.Id == id);
         }
     }
 }

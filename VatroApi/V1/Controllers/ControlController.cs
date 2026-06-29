@@ -1,17 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
 using VatroApi.V1.Dto.Control;
 using VatroApi.V1.Interfaces;
+using VatroApi.V1.Shared;
 
 namespace VatroApi.V1.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class ControlController : ControllerBase
+    public class ControlController : ApiControllerBase
     {
+        private readonly IControlService _controlService;
         private readonly IControlRepository _controlRepository;
 
-        public ControlController(IControlRepository controlRepository)
+        public ControlController(IControlService controlService, IControlRepository controlRepository)
         {
+            _controlService = controlService;
             _controlRepository = controlRepository;
 
         }
@@ -19,7 +22,8 @@ namespace VatroApi.V1.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var controls = await _controlRepository.GetAllAsync();
+            // var controls = await _controlRepository.GetAllAsync();
+            var controls = await _controlService.GetAllAsync();
 
             return Ok(controls);
         }
@@ -27,41 +31,42 @@ namespace VatroApi.V1.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var controls = await _controlRepository.GetByIdAsync(id);
+            var control = await _controlService.GetByIdAsync(id);
 
-            if (controls == null) return BadRequest();
+            if (!control.IsSuccess) return HandleError(control);
 
-            return Ok(controls);
+            return Ok(control.Value);
         }
 
         [HttpPost]
         public async Task<ActionResult<ControlDto>> Create([FromBody] ControlPostDto controlPostDto)
         {
-            var newControl = await _controlRepository.CreateAsync(controlPostDto);
-            if (newControl == null) return BadRequest();
+            var newControl = await _controlService.CreateAsync(controlPostDto);
+            if (!newControl.IsSuccess) return HandleError(newControl);
 
             // return Ok(newControl);
-            return CreatedAtAction(nameof(GetById), new {Id = newControl.Id}, newControl);
+            return CreatedAtAction(nameof(GetById), new { Id = newControl.Value?.Id }, newControl.Value);
         }
 
         [HttpPut]
         [Route("{id}")]
         public async Task<ActionResult<ControlDto>> Update(int id, [FromBody] ControlEditDto controlEditDto)
         {
-            var response = await _controlRepository.UpdateAsync(id, controlEditDto);
+            var control = await _controlService.UpdateAsync(id, controlEditDto);
 
-            return CreatedAtAction(nameof(GetById), new {id = response?.Id}, response);
+            if (!control.IsSuccess) return HandleError(control);
+
+            return CreatedAtAction(nameof(GetById), new { id = control.Value?.Id }, control.Value);
         }
 
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var response = await _controlRepository.Delete(id);
+            var response = await _controlService.DeleteAsync(id);
 
-            if (response) return Ok();
-
-            return BadRequest();
+            if (!response.IsSuccess) return HandleError(response);
+            return Ok(id);
         }
     }
 }

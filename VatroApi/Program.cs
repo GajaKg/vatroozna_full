@@ -30,6 +30,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IControlRepository, ControlRepository>();
+builder.Services.AddScoped<IControlService, ControlService>();
 
 // Controllers
 builder.Services.AddControllers();
