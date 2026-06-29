@@ -4,6 +4,7 @@ using Scalar.AspNetCore;
 using VatroApi.V1.Interfaces;
 using VatroApi.V1.Repositories;
 using VatroApi.V1.Services;
+using VatroApi.V1.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
+// Middlewares
+builder.Services.AddTransient<GlobalExceptionMiddleware>();
+
+
 var app = builder.Build();
 
 // Configure pipeline
@@ -54,6 +59,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowBlazorLocalhost");
