@@ -5,7 +5,8 @@ using VatroApi.V1.Shared;
 namespace VatroApi.V1.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")] // The 'v' is a convention, not required.
+    [ApiVersion("1.0")]
     public class ApiControllerBase : ControllerBase
     {
         protected ActionResult HandleError<T>(Result<T> result)
