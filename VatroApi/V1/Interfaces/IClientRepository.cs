@@ -8,9 +8,11 @@ namespace VatroApi.V1.Interfaces
     {
         Task<List<Client>> GetAllAsync();
         Task<Client?> GetByIdAsync(int id);
-        Task<Client> CreateAsync(Client client);
-        Task<Client?> UpdateAsync(int id, Client client);
+        Task<Client?> GetByIdUntrackedAsync(int id);
+        Task<Client?> CreateAsync(Client client);
+        void UpdateAsync(Client clientToUpdate, EditClientDto editClientDto);
         Task<bool> DeleteAsync(Client client);
         Task<bool> ClientExists(string name);
+        Task<bool> SaveAllAsync();
     }
 }

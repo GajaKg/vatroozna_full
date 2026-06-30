@@ -64,15 +64,15 @@ namespace VatroApi.V1.Mappers
             {
                 Id = client.Id,
                 Name = client.Name,
-                City = client.City,
-                Address = client.Address,
+                // City = client.City,
+                // Address = client.Address,
                 Email = client.Email,
                 Phone = client.Phone,
-                Phone2 = client.Phone2,
-                Note = client.Note,
-                Referent = client.Referent,
-                Archived = client.Archived,
-                Date = client.Date,
+                // Phone2 = client.Phone2,
+                // Note = client.Note,
+                // Referent = client.Referent,
+                // Archived = client.Archived,
+                // Date = client.Date,
             };
         }
     }

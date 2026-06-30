@@ -52,26 +52,25 @@ namespace VatroApi.V1.Services
 
             var createdClient = await _clientRepository.CreateAsync(clientModel);
 
-            return Result<ClientDto>.Success(
-                createdClient.ToClientDto()
-            );
+            return createdClient is null
+                ? Result<ClientDto>.Failure(ResultErrors.ServerError())
+                : Result<ClientDto>.Success(createdClient.ToClientDto());
         }
 
         public async Task<Result<ClientDto>> UpdateAsync(int id, EditClientDto editClientDto)
         {
-            var clientModel = editClientDto.FromClientEditToClientModel();
-            var updatedClient = await _clientRepository.UpdateAsync(id, clientModel);
-
-            if (updatedClient is null)
+            var clientToUpdate = await _clientRepository.GetByIdUntrackedAsync(id);
+            if (clientToUpdate is null)
             {
-                return Result<ClientDto>.Failure(
-                    ResultErrors.RecordNotFound(editClientDto.Name)
-                );
+                return Result<ClientDto>.Failure(ResultErrors.RecordNotFound(id.ToString()));
             }
 
-            return Result<ClientDto>.Success(
-                updatedClient.ToClientDto()
-            );
+            _clientRepository.UpdateAsync(clientToUpdate, editClientDto);
+            var saved = await _clientRepository.SaveAllAsync();
+
+            return saved
+                ? Result<ClientDto>.Success(clientToUpdate.ToClientDto())
+                : Result<ClientDto>.Failure(ResultErrors.ServerError());
         }
 
         public async Task<Result<int>> DeleteAsync(int id)

@@ -4,7 +4,6 @@ using VatroApi.V1.Data;
 using VatroApi.V1.Dto.Client;
 using VatroApi.V1.Entities;
 using VatroApi.V1.Interfaces;
-using VatroApi.V1.Mappers;
 
 namespace VatroApi.V1.Repositories
 {
@@ -32,32 +31,33 @@ namespace VatroApi.V1.Repositories
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task<Client> CreateAsync(Client client)
+        public async Task<Client?> GetByIdUntrackedAsync(int id)
         {
-            await _context.Clients.AddAsync(client);
-            await _context.SaveChangesAsync();
-
-            return client;
+            return await _context.Clients
+                .Include(c => c.Controls)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task<Client?> UpdateAsync(int id, Client client)
+        public async Task<Client?> CreateAsync(Client client)
         {
-            var foundClient = await _context.Clients.FindAsync(id);
-            if (foundClient == null) return null;
+            await _context.Clients.AddAsync(client);
 
-            foundClient.Name = client.Name;
-            foundClient.City = client.City;
-            foundClient.Address = client.Address;
-            foundClient.Email = client.Email;
-            foundClient.Phone = client.Phone;
-            foundClient.Phone2 = client.Phone2;
-            foundClient.Note = client.Note;
-            foundClient.Referent = client.Referent;
-            foundClient.Archived = client.Archived;
+            return await _context.SaveChangesAsync() > 0
+                ? client
+                : null;
+        }
 
-            await _context.SaveChangesAsync();
-
-            return foundClient;
+        public async void UpdateAsync(Client clientToUpdate, EditClientDto editClientDto)
+        {
+            clientToUpdate.Name = editClientDto.Name;
+            clientToUpdate.City = editClientDto.City;
+            clientToUpdate.Address = editClientDto.Address;
+            clientToUpdate.Email = editClientDto.Email;
+            clientToUpdate.Phone = editClientDto.Phone;
+            clientToUpdate.Phone2 = editClientDto.Phone2;
+            clientToUpdate.Note = editClientDto.Note;
+            clientToUpdate.Referent = editClientDto.Referent;
+            clientToUpdate.Archived = editClientDto.Archived;
         }
 
         public async Task<bool> DeleteAsync(Client client)
@@ -66,11 +66,16 @@ namespace VatroApi.V1.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<bool> SaveAllAsync()
+        {
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public async Task<bool> ClientExists(string name)
         {
             return await _context.Clients
                 .AnyAsync(c => EF.Functions.ILike(c.Name, name));
-                // .AnyAsync(c => c.Name.ToLower() == name.Trim().ToLower());//This prevents index usage in SQL.
+            // .AnyAsync(c => c.Name.ToLower() == name.Trim().ToLower());//This prevents index usage in SQL.
         }
     }
 }
