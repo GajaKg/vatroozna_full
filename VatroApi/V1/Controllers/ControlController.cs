@@ -4,8 +4,6 @@ using VatroApi.V1.Interfaces;
 
 namespace VatroApi.V1.Controllers
 {
-    [ApiController]
-    [Route("api/v1/[controller]")]
     public class ControlController : ApiControllerBase
     {
         private readonly IControlService _controlService;
