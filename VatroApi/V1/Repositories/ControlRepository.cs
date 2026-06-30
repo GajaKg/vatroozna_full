@@ -15,41 +15,41 @@ namespace VatroApi.V1.Repositories
             _context = context;
         }
 
-        public async Task<IReadOnlyList<Control>> GetAllAsync()
+        public async Task<IReadOnlyList<Control>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await _context.Controls
                 .AsNoTracking()
                 .Include(c => c.Client)
                 .OrderBy(c => c.Date)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<Control?> GetByIdAsync(int id)
+        public async Task<Control?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             return await _context.Controls
                 .AsNoTracking()
                 .Include(c => c.Client)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
         }
 
-        public async Task<Control?> GetByIdUntrackedAsync(int id)
+        public async Task<Control?> GetByIdUntrackedAsync(int id, CancellationToken cancellationToken)
         {
             return await _context.Controls
                 .Include(c => c.Client)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
         }
 
-        public async Task<Control?> CreateAsync(Control control)
+        public async Task<Control?> CreateAsync(Control control, CancellationToken cancellationToken)
         {
-            await _context.Controls.AddAsync(control);
-            var result = await SaveAllAsync();
+            await _context.Controls.AddAsync(control, cancellationToken);
+            var result = await SaveAllAsync(cancellationToken);
 
             if (result) return control;
 
             return null;
         }
 
-        public void UpdateAsync(Control controlToUpdate, ControlEditDto controlEditDto)
+        public void UpdateAsync(Control controlToUpdate, ControlEditDto controlEditDto, CancellationToken cancellationToken)
         {
             controlToUpdate.Subject = controlEditDto.Subject;
             controlToUpdate.Duration = controlEditDto.Duration;
@@ -59,20 +59,20 @@ namespace VatroApi.V1.Repositories
             controlToUpdate.Archive = controlEditDto.Archive;
         }
 
-        public async Task<bool> Delete(Control control)
+        public async Task<bool> Delete(Control control, CancellationToken cancellationToken)
         {
             _context.Controls.Remove(control);
-            return await SaveAllAsync();
+            return await SaveAllAsync(cancellationToken);
         }
 
-        public async Task<bool> SaveAllAsync()
+        public async Task<bool> SaveAllAsync(CancellationToken cancellationToken)
         {
-            return await _context.SaveChangesAsync() > 0;
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
 
-        public async Task<bool> ControlExists(int id)
+        public async Task<bool> ControlExists(int id, CancellationToken cancellationToken)
         {
-            return await _context.Controls.AnyAsync(c => c.Id == id);
+            return await _context.Controls.AnyAsync(c => c.Id == id, cancellationToken: cancellationToken);
         }
     }
 }

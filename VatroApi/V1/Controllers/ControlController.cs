@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VatroApi.V1.Dto.Control;
 using VatroApi.V1.Interfaces;
-using VatroApi.V1.Shared;
 
 namespace VatroApi.V1.Controllers
 {
@@ -10,28 +9,24 @@ namespace VatroApi.V1.Controllers
     public class ControlController : ApiControllerBase
     {
         private readonly IControlService _controlService;
-        private readonly IControlRepository _controlRepository;
 
-        public ControlController(IControlService controlService, IControlRepository controlRepository)
+        public ControlController(IControlService controlService)
         {
             _controlService = controlService;
-            _controlRepository = controlRepository;
-
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
-            // var controls = await _controlRepository.GetAllAsync();
-            var controls = await _controlService.GetAllAsync();
+            var controls = await _controlService.GetAllAsync(cancellationToken);
 
             return Ok(controls);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
         {
-            var control = await _controlService.GetByIdAsync(id);
+            var control = await _controlService.GetByIdAsync(id, cancellationToken);
 
             if (!control.IsSuccess) return HandleError(control);
 
@@ -39,9 +34,9 @@ namespace VatroApi.V1.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ControlDto>> Create([FromBody] ControlPostDto controlPostDto)
+        public async Task<ActionResult<ControlDto>> Create([FromBody] ControlPostDto controlPostDto, CancellationToken cancellationToken)
         {
-            var newControl = await _controlService.CreateAsync(controlPostDto);
+            var newControl = await _controlService.CreateAsync(controlPostDto, cancellationToken);
             if (!newControl.IsSuccess) return HandleError(newControl);
 
             // return Ok(newControl);
@@ -50,9 +45,9 @@ namespace VatroApi.V1.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<ActionResult<ControlDto>> Update(int id, [FromBody] ControlEditDto controlEditDto)
+        public async Task<ActionResult<ControlDto>> Update(int id, [FromBody] ControlEditDto controlEditDto, CancellationToken cancellationToken)
         {
-            var control = await _controlService.UpdateAsync(id, controlEditDto);
+            var control = await _controlService.UpdateAsync(id, controlEditDto, cancellationToken);
 
             if (!control.IsSuccess) return HandleError(control);
 
@@ -61,9 +56,9 @@ namespace VatroApi.V1.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            var response = await _controlService.DeleteAsync(id);
+            var response = await _controlService.DeleteAsync(id, cancellationToken);
 
             if (!response.IsSuccess) return HandleError(response);
             return Ok(id);

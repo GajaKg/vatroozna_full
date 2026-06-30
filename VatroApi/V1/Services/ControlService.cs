@@ -16,9 +16,9 @@ namespace VatroApi.V1.Services
             _controlRepository = controlRepository;
         }
 
-        public async Task<IReadOnlyList<ControlWithClientDto>> GetAllAsync()
+        public async Task<IReadOnlyList<ControlWithClientDto>> GetAllAsync(CancellationToken cancellationToken)
         {
-            var controls = await _controlRepository.GetAllAsync();
+            var controls = await _controlRepository.GetAllAsync(cancellationToken);
 
             return controls.Select(c => new ControlWithClientDto
             {
@@ -46,9 +46,9 @@ namespace VatroApi.V1.Services
             }).ToList();
         }
 
-        public async Task<Result<ControlWithClientDto>> GetByIdAsync(int id)
+        public async Task<Result<ControlWithClientDto>> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            var control = await _controlRepository.GetByIdAsync(id);
+            var control = await _controlRepository.GetByIdAsync(id, cancellationToken);
 
             if (control is null)
             {
@@ -78,10 +78,10 @@ namespace VatroApi.V1.Services
             return Result<ControlWithClientDto>.Success(controlDto);
         }
 
-        public async Task<Result<ControlDto>> CreateAsync(ControlPostDto controlPostDto)
+        public async Task<Result<ControlDto>> CreateAsync(ControlPostDto controlPostDto, CancellationToken cancellationToken)
         {
             var controlModel = controlPostDto.FromControlPostDtoToControlModel();
-            var control = await _controlRepository.CreateAsync(controlModel);
+            var control = await _controlRepository.CreateAsync(controlModel, cancellationToken);
 
             if (control is null)
             {
@@ -93,30 +93,30 @@ namespace VatroApi.V1.Services
             return Result<ControlDto>.Success(control.ToControlDto());
         }
 
-        public async Task<Result<ControlDto>> UpdateAsync(int id, ControlEditDto controlEditDto)
+        public async Task<Result<ControlDto>> UpdateAsync(int id, ControlEditDto controlEditDto, CancellationToken cancellationToken)
         {
-            var controlToUpdate = await _controlRepository.GetByIdUntrackedAsync(id);
+            var controlToUpdate = await _controlRepository.GetByIdUntrackedAsync(id, cancellationToken);
             if (controlToUpdate is null)
             {
                 return Result<ControlDto>.Failure(ResultErrors.RecordNotFound(id.ToString()));
             }
 
-            _controlRepository.UpdateAsync(controlToUpdate, controlEditDto);
+            _controlRepository.UpdateAsync(controlToUpdate, controlEditDto, cancellationToken);
 
-            return await _controlRepository.SaveAllAsync()
+            return await _controlRepository.SaveAllAsync(cancellationToken)
                 ? Result<ControlDto>.Success(controlToUpdate.ToControlDto())
                 : Result<ControlDto>.Failure(ResultErrors.ServerError());
         }
 
-        public async Task<Result<int>> DeleteAsync(int id)
+        public async Task<Result<int>> DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            var control = await _controlRepository.GetByIdAsync(id);
+            var control = await _controlRepository.GetByIdAsync(id, cancellationToken);
             if (control is null)
             {
                 return Result<int>.Failure(ResultErrors.RecordNotFound(id.ToString()));
             }
 
-            return await _controlRepository.Delete(control)
+            return await _controlRepository.Delete(control, cancellationToken)
                 ? Result<int>.Success(id)
                 : Result<int>.Failure(ResultErrors.ServerError());
 

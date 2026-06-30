@@ -6,10 +6,10 @@ namespace VatroApi.V1.Interfaces
 {
     public interface IControlService
     {
-        Task<Result<ControlWithClientDto>> GetByIdAsync(int id);
-        Task<IReadOnlyList<ControlWithClientDto>> GetAllAsync();
-        Task<Result<ControlDto>> CreateAsync(ControlPostDto controlPostDto);
-        Task<Result<ControlDto>> UpdateAsync(int id, ControlEditDto controlEditDto);
-        Task<Result<int>> DeleteAsync(int id);
+        Task<Result<ControlWithClientDto>> GetByIdAsync(int id, CancellationToken cancellationToken);
+        Task<IReadOnlyList<ControlWithClientDto>> GetAllAsync(CancellationToken cancellationToken);
+        Task<Result<ControlDto>> CreateAsync(ControlPostDto controlPostDto, CancellationToken cancellationToken);
+        Task<Result<ControlDto>> UpdateAsync(int id, ControlEditDto controlEditDto, CancellationToken cancellationToken);
+        Task<Result<int>> DeleteAsync(int id, CancellationToken cancellationToken);
     }
 }

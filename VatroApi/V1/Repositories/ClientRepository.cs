@@ -16,38 +16,38 @@ namespace VatroApi.V1.Repositories
             _context = context;
         }
 
-        public async Task<IReadOnlyList<Client>> GetAllAsync()
+        public async Task<IReadOnlyList<Client>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await _context.Clients
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<Client?> GetByIdAsync(int id)
+        public async Task<Client?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             return await _context.Clients
                 .AsNoTracking()
                 .Include(c => c.Controls)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
         }
 
-        public async Task<Client?> GetByIdUntrackedAsync(int id)
+        public async Task<Client?> GetByIdUntrackedAsync(int id, CancellationToken cancellationToken)
         {
             return await _context.Clients
                 .Include(c => c.Controls)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
         }
 
-        public async Task<Client?> CreateAsync(Client client)
+        public async Task<Client?> CreateAsync(Client client, CancellationToken cancellationToken)
         {
-            await _context.Clients.AddAsync(client);
+            await _context.Clients.AddAsync(client, cancellationToken);
 
-            return await _context.SaveChangesAsync() > 0
+            return await _context.SaveChangesAsync(cancellationToken) > 0
                 ? client
                 : null;
         }
 
-        public async void UpdateAsync(Client clientToUpdate, EditClientDto editClientDto)
+        public async void UpdateAsync(Client clientToUpdate, EditClientDto editClientDto, CancellationToken cancellationToken)
         {
             clientToUpdate.Name = editClientDto.Name;
             clientToUpdate.City = editClientDto.City;
@@ -60,21 +60,21 @@ namespace VatroApi.V1.Repositories
             clientToUpdate.Archived = editClientDto.Archived;
         }
 
-        public async Task<bool> DeleteAsync(Client client)
+        public async Task<bool> DeleteAsync(Client client, CancellationToken cancellationToken)
         {
             _context.Clients.Remove(client);
-            return await _context.SaveChangesAsync() > 0;
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
 
-        public async Task<bool> SaveAllAsync()
+        public async Task<bool> SaveAllAsync(CancellationToken cancellationToken)
         {
-            return await _context.SaveChangesAsync() > 0;
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
 
-        public async Task<bool> ClientExists(string name)
+        public async Task<bool> ClientExists(string name, CancellationToken cancellationToken)
         {
             return await _context.Clients
-                .AnyAsync(c => EF.Functions.ILike(c.Name, name));
+                .AnyAsync(c => EF.Functions.ILike(c.Name, name), cancellationToken: cancellationToken);
             // .AnyAsync(c => c.Name.ToLower() == name.Trim().ToLower());//This prevents index usage in SQL.
         }
     }

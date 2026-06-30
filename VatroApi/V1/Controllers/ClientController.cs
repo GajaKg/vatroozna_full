@@ -14,17 +14,17 @@ namespace VatroApi.V1.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ClientDto>>> GetAll()
+        public async Task<ActionResult<List<ClientDto>>> GetAll(CancellationToken cancellationToken)
         {
-            var clients = await _clientService.GetAllAsync();
+            var clients = await _clientService.GetAllAsync(cancellationToken);
             return Ok(clients);
         }
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<ActionResult<ClientDto>> GetById([FromRoute] int id)
+        public async Task<ActionResult<ClientDto>> GetById([FromRoute] int id, CancellationToken cancellationToken)
         {
-            var result = await _clientService.GetByIdAsync(id);
+            var result = await _clientService.GetByIdAsync(id, cancellationToken);
 
             if (!result.IsSuccess)
             {
@@ -35,12 +35,12 @@ namespace VatroApi.V1.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ClientDto>> Create([FromBody] PostClientDto postClientDto)
+        public async Task<ActionResult<ClientDto>> Create([FromBody] PostClientDto postClientDto, CancellationToken cancellationToken)
         {
             // this code is not necessary, dotnet do this automatically
             // if (!ModelState.IsValid) return BadRequest();
 
-            var result = await _clientService.CreateAsync(postClientDto);
+            var result = await _clientService.CreateAsync(postClientDto, cancellationToken);
 
             if (!result.IsSuccess)
             {
@@ -52,10 +52,10 @@ namespace VatroApi.V1.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<ActionResult<ClientDto>> Update([FromRoute] int id, [FromBody] EditClientDto editClientDto)
+        public async Task<ActionResult<ClientDto>> Update([FromRoute] int id, [FromBody] EditClientDto editClientDto, CancellationToken cancellationToken)
         {
 
-            var result = await _clientService.UpdateAsync(id, editClientDto);
+            var result = await _clientService.UpdateAsync(id, editClientDto, cancellationToken);
 
             if (!result.IsSuccess)
             {
@@ -66,9 +66,9 @@ namespace VatroApi.V1.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<int>> Delete(int id)
+        public async Task<ActionResult<int>> Delete(int id, CancellationToken cancellationToken)
         {
-            var result = await _clientService.DeleteAsync(id);
+            var result = await _clientService.DeleteAsync(id, cancellationToken);
 
             if (!result.IsSuccess)
             {
