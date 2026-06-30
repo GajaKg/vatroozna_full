@@ -6,7 +6,7 @@ namespace VatroApi.V1.Interfaces
 {
     public interface IClientRepository
     {
-        Task<List<Client>> GetAllAsync();
+        Task<IReadOnlyList<Client>> GetAllAsync();
         Task<Client?> GetByIdAsync(int id);
         Task<Client?> GetByIdUntrackedAsync(int id);
         Task<Client?> CreateAsync(Client client);

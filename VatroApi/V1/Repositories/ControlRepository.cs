@@ -15,7 +15,7 @@ namespace VatroApi.V1.Repositories
             _context = context;
         }
 
-        public async Task<List<Control>> GetAllAsync()
+        public async Task<IReadOnlyList<Control>> GetAllAsync()
         {
             return await _context.Controls
                 .AsNoTracking()

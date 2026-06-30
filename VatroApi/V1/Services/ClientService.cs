@@ -28,7 +28,7 @@ namespace VatroApi.V1.Services
             return Result<ClientDto>.Success(client.ToClientDto());
         }
 
-        public async Task<List<ClientDto>> GetAllAsync()
+        public async Task<IReadOnlyList<ClientDto>> GetAllAsync()
         {
             var clients = await _clientRepository.GetAllAsync();
 

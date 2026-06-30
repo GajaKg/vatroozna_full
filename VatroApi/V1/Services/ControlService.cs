@@ -16,7 +16,7 @@ namespace VatroApi.V1.Services
             _controlRepository = controlRepository;
         }
 
-        public async Task<List<ControlWithClientDto>> GetAllAsync()
+        public async Task<IReadOnlyList<ControlWithClientDto>> GetAllAsync()
         {
             var controls = await _controlRepository.GetAllAsync();
 

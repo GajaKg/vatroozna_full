@@ -5,7 +5,7 @@ namespace VatroApi.V1.Interfaces
 {
     public interface IControlRepository
     {
-        Task<List<Control>> GetAllAsync();
+        Task<IReadOnlyList<Control>> GetAllAsync();
         Task<Control?> GetByIdAsync(int id);
         Task<Control?> GetByIdUntrackedAsync(int id);
         Task<Control?> CreateAsync(Control control);
