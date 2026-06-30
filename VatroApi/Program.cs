@@ -5,6 +5,8 @@ using VatroApi.V1.Interfaces;
 using VatroApi.V1.Repositories;
 using VatroApi.V1.Services;
 using VatroApi.V1.Middleware;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,14 @@ builder.Services.AddScoped<IControlService, ControlService>();
 
 // Controllers
 builder.Services.AddControllers();
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+});
 
 // OpenAPI
 builder.Services.AddEndpointsApiExplorer();
